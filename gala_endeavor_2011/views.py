@@ -2,9 +2,10 @@ from django.http import HttpResponse# Create your views here.
 from gala_endeavor_2011.models import *
 from django.http import Http404, HttpResponseBadRequest
 from django.utils import simplejson
+from decimal import *
 
 def index(request):
-	return HttpResponse("Indice subasta. Gala Endeavor 2011")
+	return HttpResponse("Indice subasta. Gala Endeavor 2012")
 
 def creaUsuario(request):
 	
@@ -26,18 +27,28 @@ def creaUsuario(request):
 def pujaProducto(request):
 	
 	if request.method == 'GET':
-		return HttpResponse("")
+		return HttpResponse("Why are you entering through your browser??")
 	
 	usuario 	=request.POST.get('usuario', False ).strip()
 	producto 	=request.POST.get('producto', False ).strip()
 	precio 		=request.POST.get('precio', False ).strip()
+
 		
 	if usuario == False or producto == False or precio == False:
 		return HttpResponseBadRequest("Bad Request")
 
 	usuario = Usuarios.objects.get(user = usuario)
 	producto = Productos.objects.get(id_prod = int(producto))
-	
+
+
+	user_offer = Decimal(precio)
+	server_offer = Decimal(producto.costo_actual)
+
+	if user_offer <= server_offer:
+		print("Error: La oferta enviada por el usuario es menor que la existente en el servidor.")
+		return HttpResponseBadRequest("Bad Request")
+
+
 	producto.costo_actual = precio
 	producto.last_bidder = usuario
 	producto.save()
@@ -55,12 +66,6 @@ def pullProducto (request):
 	productos = Productos.objects.all()
 	
 	alive = Alive.objects.get(pk=1)
-
-	print(alive.alive)
-	print(productos[0].id_prod)
-	print(productos[0].last_bidder_id)
-	print(productos[0].costo_actual)
-
 
 	data = simplejson.dumps( {	'alive' : alive.alive,
 																		'productos':[{	'id_producto': o.id_prod,\
