@@ -19,7 +19,7 @@ def creaUsuario(request):
 	if usuario == False or nombre == False or mesa == False:
 		return HttpResponseBadRequest("Bad Request")
 
-	usuario = Usuarios (user = usuario.strip(), nombre = nombre.strip(), mesa = int(mesa))
+	usuario = Usuarios (user = usuario.strip().lower(), nombre = nombre.strip(), mesa = int(mesa))
 	usuario.save(force_insert=True)
 
 	return HttpResponse("OK")
